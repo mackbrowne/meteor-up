@@ -15,7 +15,10 @@ docker rm -f $APPNAME-frontend
 
 # We don't need to fail the deployment because of a docker hub downtime
 set +e
-docker pull meteorhacks/meteord:base
++docker build -t meteorhacks/meteord:app - << EOF
++FROM meteorhacks/meteord:base
++RUN apt-get install graphicsmagick -y
++EOF
 set -e
 
 if [ "$USE_LOCAL_MONGO" == "1" ]; then
@@ -29,7 +32,7 @@ if [ "$USE_LOCAL_MONGO" == "1" ]; then
     --hostname="$HOSTNAME-$APPNAME" \
     --env=MONGO_URL=mongodb://mongodb:27017/$APPNAME \
     --name=$APPNAME \
-    meteorhacks/meteord:base
+    meteorhacks/meteord:app
 else
   docker run \
     -d \
@@ -39,7 +42,7 @@ else
     --hostname="$HOSTNAME-$APPNAME" \
     --env-file=$ENV_FILE \
     --name=$APPNAME \
-    meteorhacks/meteord:base
+    meteorhacks/meteord:app
 fi
 
 <% if(typeof sslConfig === "object")  { %>
